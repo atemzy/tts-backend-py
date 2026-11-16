@@ -1,0 +1,2 @@
+python3 -m piper.download_voices --download-dir ./models de_DE-thorsten-medium
+python3 -m piper.download_voices --download-dir ./models no_NO-talesyntese-medium
