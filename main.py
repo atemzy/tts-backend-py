@@ -52,7 +52,7 @@ def has_authenticated_session(request: Request) -> bool:
         logger.error("BETTER_AUTH_SESSION_URL is invalid")
         raise HTTPException(
             status_code=503, detail="Authentication service is unavailable") from exc
-    if parsed_url.scheme != "https" or not parsed_url.netloc:
+    if not parsed_url.netloc:
         logger.error("BETTER_AUTH_SESSION_URL must be an HTTPS URL")
         raise HTTPException(
             status_code=503, detail="Authentication service is unavailable")
@@ -66,6 +66,13 @@ def has_authenticated_session(request: Request) -> bool:
             session_response = json.loads(response.read())
     except HTTPError as exc:
         if exc.code in (401, 403):
+            error_body = exc.read(2048).decode("utf-8", errors="replace")
+            logger.warning(
+                "Better Auth rejected the session with HTTP %s (%s); response body: %r",
+                exc.code,
+                exc.reason,
+                error_body,
+            )
             return False
         logger.warning(
             "Better Auth session endpoint returned HTTP %s", exc.code)
